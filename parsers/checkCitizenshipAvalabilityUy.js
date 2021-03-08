@@ -7,12 +7,13 @@ const common = require('../utils/common');
 const URL = 'https://sae.corteelectoral.gub.uy/sae/agendarReserva/Paso1.xhtml';
 
 const checkAvailability = async () => {
+  console.log("Verificando si hay cupos disponibles para ciudadania uruguaya...");
   const response1 = await axios.get(`${URL}?e=1&a=1&r=1`);
   if (response1.status === 200) {
     const setCookieHeader = response1.headers['set-cookie'][0];
     const sessionIdString = setCookieHeader.split(';')[0].split('=')[1];
     const html1 = response1.data;
-    // console.log("------- HTML -------");
+
     const $ch1 = cheerio.load(html1);
     const viewState = $ch1('input[name="javax.faces.ViewState"]').attr('value');
     // console.log(viewState);
@@ -44,13 +45,13 @@ const checkAvailability = async () => {
     const html2 = response2.data;
     const $ch2 = cheerio.load(html2);
     if ($ch2.text().includes('En la oficina seleccionada no hay cupos disponibles')) {
-      console.log('No hay cupos');
+      console.log('No hay cupos disponibles.');
       return;
     }
 
     console.log('HAY CUPOS DISPONIBLES');
 
-    await slack.postNotification(`@Oliver HAY CUPOS DISPONIBLES \n${URL}`);
+    await slack.postNotification(`HAY CUPOS DISPONIBLES \n${URL}`);
   }
 };
 
